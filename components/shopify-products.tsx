@@ -5,10 +5,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Eye, ShoppingCart, AlertCircle } from "lucide-react"
+import { Eye, ShoppingCart, AlertCircle, Database } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { getShopifyConnection } from "@/lib/supabase"
 
 interface Product {
   id: string
@@ -25,6 +24,8 @@ export function ShopifyProducts() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasConnection, setHasConnection] = useState(false)
+  const [setupNeeded, setSetupNeeded] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -32,33 +33,47 @@ export function ShopifyProducts() {
         setLoading(true)
 
         // First check if we have a connection
-        try {
-          const connection = await getShopifyConnection()
-          setHasConnection(!!connection)
+        const connectionResponse = await fetch("/api/shopify/connection")
 
-          if (!connection) {
+        if (!connectionResponse.ok) {
+          // Check if this is a setup issue
+          if (connectionResponse.status === 503) {
+            setSetupNeeded(true)
             setLoading(false)
             return
           }
 
-          const response = await fetch("/api/shopify/products")
-
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`)
-          }
-
-          const data = await response.json()
-          setProducts(data.products)
-          setError(null)
-        } catch (err) {
-          console.error("Failed to check connection or fetch products:", err)
-          if (err instanceof Error && err.message.includes("Cannot initialize Supabase client")) {
-            setError("Database connection error. Please check your environment variables.")
-          } else {
-            setError("Failed to load products. Please check your Shopify connection.")
-          }
-          setHasConnection(false)
+          throw new Error(`Error checking connection: ${connectionResponse.status}`)
         }
+
+        const connectionData = await connectionResponse.json()
+        setHasConnection(!!connectionData.connection)
+
+        if (!connectionData.connection) {
+          setLoading(false)
+          return
+        }
+
+        const response = await fetch("/api/shopify/products")
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`)
+        }
+
+        const data = await response.json()
+        setProducts(data.products)
+        setError(null)
+      } catch (err) {
+        console.error("Failed to fetch products:", err)
+
+        // Check if this is a database setup issue
+        if (err instanceof Error && (err.message.includes("relation") || err.message.includes("does not exist"))) {
+          setSetupNeeded(true)
+        } else {
+          setError("Failed to load products. Please check your Shopify connection.")
+        }
+
+        setHasConnection(false)
       } finally {
         setLoading(false)
       }
@@ -66,6 +81,42 @@ export function ShopifyProducts() {
 
     fetchProducts()
   }, [])
+
+  const handleInitializeDatabase = async () => {
+    try {
+      setIsInitializing(true)
+
+      // Call the setup API
+      const response = await fetch("/api/setup")
+
+      if (!response.ok) {
+        throw new Error(`Setup failed: ${response.status}`)
+      }
+
+      // Reload the page after successful setup
+      window.location.reload()
+    } catch (err) {
+      console.error("Failed to initialize database:", err)
+      setError("Failed to initialize database. Please try again.")
+    } finally {
+      setIsInitializing(false)
+    }
+  }
+
+  if (setupNeeded) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg bg-muted/40">
+        <Database className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Database Setup Required</h3>
+        <p className="text-muted-foreground mb-6 max-w-md">
+          The database tables need to be set up before you can use this application.
+        </p>
+        <Button onClick={handleInitializeDatabase} disabled={isInitializing}>
+          {isInitializing ? "Initializing..." : "Initialize Database"}
+        </Button>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
