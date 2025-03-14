@@ -1,1 +1,0 @@
-// Delete this file to resolve the conflict with app/settings/page.tsx

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const StoreConnectionSettings = () => {
-  const [dbConnectionStatus, setDbConnectionStatus] = useState('');
+const StoreConnectionSettings: React.FC = () => {
+  const [dbConnectionStatus, setDbConnectionStatus] = useState<string>('');
 
   useEffect(() => {
     // Fetch the database connection status from environment variables
@@ -15,6 +15,7 @@ const StoreConnectionSettings = () => {
       await axios.post('/api/clear-cache');
       alert('Cache cleared successfully');
     } catch (error) {
+      console.error('Failed to clear cache:', error);
       alert('Failed to clear cache');
     }
   };
