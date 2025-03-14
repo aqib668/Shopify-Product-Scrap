@@ -21,6 +21,7 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  reactStrictMode: true, // Enable React strict mode
 }
 
 mergeConfig(nextConfig, userConfig)

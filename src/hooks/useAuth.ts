@@ -9,5 +9,10 @@ export const useAuth = () => {
     setIsAuthenticated(!!token);
   }, []);
 
-  return { isAuthenticated };
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setIsAuthenticated(false);
+  };
+
+  return { isAuthenticated, logout };
 };

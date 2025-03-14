@@ -8,10 +8,19 @@ const Dashboard = () => {
     setStoreConnected(true);
   };
 
+  const handleLogout = () => {
+    // Implement logout logic here
+    localStorage.removeItem('authToken');
+    window.location.reload();
+  };
+
   return (
     <div>
       {storeConnected ? (
-        <div>Welcome to your dashboard!</div>
+        <div>
+          <div>Welcome to your dashboard!</div>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
       ) : (
         <button onClick={handleConnectStore}>Connect Store</button>
       )}
