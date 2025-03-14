@@ -1,0 +1,13 @@
+{
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SUPABASE_URL": "https://pqxsiuteopnbdnjholne.supabase.co",
+      "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeHNpdXRlb3BuYmRuamhvbG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3Mjg0MDQsImV4cCI6MjA1NzMwNDQwNH0.36tt_4BblpfUhpZl8E1g2zGt8JDjo8jKCZlLepjYA5Y",
+      "NEXT_PUBLIC_DB_CONNECTION_STATUS": "connected",
+      "NEXT_PUBLIC_DB_STATUS_MESSAGE": "Database is connected"
+    },
+    "commands": {
+      "install": "pnpm install --no-frozen-lockfile"
+    }
+  }
+}
