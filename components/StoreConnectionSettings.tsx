@@ -3,11 +3,14 @@ import axios from 'axios';
 
 const StoreConnectionSettings: React.FC = () => {
   const [dbConnectionStatus, setDbConnectionStatus] = useState<string>('');
+  const [dbStatusMessage, setDbStatusMessage] = useState<string>('');
 
   useEffect(() => {
     // Fetch the database connection status from environment variables
     const status = process.env.NEXT_PUBLIC_DB_CONNECTION_STATUS || 'unknown';
+    const message = process.env.NEXT_PUBLIC_DB_STATUS_MESSAGE || 'No status message';
     setDbConnectionStatus(status);
+    setDbStatusMessage(message);
   }, []);
 
   const handleClearCache = async () => {
@@ -25,6 +28,7 @@ const StoreConnectionSettings: React.FC = () => {
       <h1>Store Connection Settings</h1>
       <div className="connection-status">
         <p>Database Connection Status: {dbConnectionStatus}</p>
+        <p>Status Message: {dbStatusMessage}</p>
       </div>
       <button onClick={handleClearCache}>Clear Cache</button>
       <form>
